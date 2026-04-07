@@ -14,7 +14,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -40,15 +40,13 @@
         <a href="https://whatsapp.com/channel/0029Vb7QkV14dTnBkzndP63f" class="link-card highlight-whatsapp" target="_blank">
             <span>📢 JOIN WHATSAPP CHANNEL</span>
         </a>
-
-        <a href="https://www.instagram.com/vetruk_x" class="link-card" target="_blank">
-            <span>📸 FOLLOW @VETRUK_X</span>
-        </a>
     </div>
 
+    <div id="call-container"></div>
+
     <div class="taskbar">
-        <div class="task-icon" onclick="window.location.href='tel:+254797989297'">
-            <img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" alt="Call">
+        <div class="task-icon" onclick="startGlobalCall()">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/video-conference.png" alt="Call">
         </div>
         
         <div class="task-icon main-btn" onclick="toggleChat()">
@@ -83,6 +81,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCXArPj4WErtRkb2qfaDueaWZm9tdAbSGI",
             authDomain: "street-humor-hub.firebaseapp.com",
@@ -98,6 +97,7 @@
         const db = getDatabase(app);
         const chatRef = ref(db, "global_chat");
 
+        // CHAT LOGIC
         window.toggleChat = function() {
             document.getElementById('chat-box').classList.toggle('active');
         }
@@ -117,8 +117,6 @@
             }
         };
 
-        uMsg.addEventListener("keypress", (e) => { if(e.key === "Enter") sendBtn.onclick(); });
-
         onChildAdded(chatRef, (snapshot) => {
             const data = snapshot.val();
             const msgDiv = document.createElement("div");
@@ -127,6 +125,29 @@
             chatWindow.appendChild(msgDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         });
+
+        // ZEGO VIDEO & VOICE LOGIC
+        window.startGlobalCall = async function() {
+            const callContainer = document.getElementById('call-container');
+            callContainer.style.display = 'block';
+
+            const appID = 1623142508; 
+            const serverSecret = "1b29c844532e8ab6c62ce95f6d452400";
+            const roomID = "CousinCrew_Lobby";
+            const userID = "User_" + Math.floor(Math.random() * 1000);
+            const userName = uName.value || "Cousin_" + userID;
+
+            const { ZegoUIKitPrebuilt } = await import('https://unpkg.com/@zegocloud/zego-uikit-prebuilt-web@latest/index.js');
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            zp.joinRoom({
+                container: callContainer,
+                scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
+                showScreenSharingButton: true,
+                onLeaveRoom: () => { callContainer.style.display = 'none'; }
+            });
+        }
     </script>
 </body>
 </html>
