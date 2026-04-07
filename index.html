@@ -14,7 +14,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=4.1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -97,7 +97,7 @@
         const db = getDatabase(app);
         const chatRef = ref(db, "global_chat");
 
-        // CHAT LOGIC
+        // CHAT TOGGLE
         window.toggleChat = function() {
             document.getElementById('chat-box').classList.toggle('active');
         }
@@ -126,26 +126,39 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         });
 
-        // ZEGO VIDEO & VOICE LOGIC
+        // ZEGO VIDEO & VOICE LOGIC (UPDATED)
         window.startGlobalCall = async function() {
             const callContainer = document.getElementById('call-container');
             callContainer.style.display = 'block';
 
+            // YOUR CREDENTIALS
             const appID = 1623142508; 
             const serverSecret = "1b29c844532e8ab6c62ce95f6d452400";
             const roomID = "CousinCrew_Lobby";
+            
+            // Identity
             const userID = "User_" + Math.floor(Math.random() * 1000);
             const userName = uName.value || "Cousin_" + userID;
 
+            // Load Engine
             const { ZegoUIKitPrebuilt } = await import('https://unpkg.com/@zegocloud/zego-uikit-prebuilt-web@latest/index.js');
+            
+            // Generate Token
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
 
+            // Create and Join Room
             const zp = ZegoUIKitPrebuilt.create(kitToken);
             zp.joinRoom({
                 container: callContainer,
-                scenario: { mode: ZegoUIKitPrebuilt.GroupCall },
+                scenario: { 
+                    mode: ZegoUIKitPrebuilt.GroupCall 
+                },
+                showPreJoinView: true, // THIS FIXES THE BLACK SCREEN
                 showScreenSharingButton: true,
-                onLeaveRoom: () => { callContainer.style.display = 'none'; }
+                onLeaveRoom: () => { 
+                    callContainer.style.display = 'none';
+                    location.reload(); // Refresh to clean up camera session
+                }
             });
         }
     </script>
