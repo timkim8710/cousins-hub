@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cousin Crew Hub | © 2026 vetruk_x</title>
+    
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="profile-section">
+        <div class="profile-pic"></div>
+        <h2>COUSIN CREW HUB</h2>
+        <p class="sub-head">Official Team Registry & Community 🇰🇪</p>
+    </div>
+
+    <div class="links-container">
+        <div class="link-card crew-box">
+            <h3 class="registry-title">LEADERSHIP REGISTRY</h3>
+            <div class="crew-grid">
+                <div class="crew-item"><b>Blessing</b> <span>Chairman</span></div>
+                <div class="crew-item"><b>Darlene</b> <span>Secretary</span></div>
+                <div class="crew-item"><b>Jedidiah</b> <span>Treasure</span></div>
+                <div class="crew-item"><b>Nimrod</b> <span>Social Media</span></div>
+                <div class="crew-item"><b>Timon</b> <span>Developer</span></div>
+            </div>
+        </div>
+
+        <a href="https://whatsapp.com/channel/0029Vb7QkV14dTnBkzndP63f" class="link-card highlight-whatsapp" target="_blank">
+            <span>📢 JOIN WHATSAPP CHANNEL</span>
+        </a>
+
+        <a href="https://www.instagram.com/vetruk_x" class="link-card" target="_blank">
+            <span>📸 FOLLOW @VETRUK_X</span>
+        </a>
+    </div>
+
+    <div class="taskbar">
+        <div class="task-icon" onclick="window.location.href='tel:+254797989297'">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" alt="Call">
+        </div>
+        
+        <div class="task-icon main-btn" onclick="toggleChat()">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/chat-messages--v1.png" alt="Chat">
+            <span class="notification-dot"></span>
+        </div>
+
+        <a href="https://www.instagram.com/vetruk_x" class="task-icon" target="_blank">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="IG">
+        </a>
+    </div>
+
+    <div id="chat-box" class="chat-popup">
+        <div class="chat-header">
+            <div><span class="status-dot"></span><span>Secure Lobby</span></div>
+            <button class="close-btn" onclick="toggleChat()">×</button>
+        </div>
+        <div id="chat-window" class="chat-window"></div>
+        <div class="chat-input-area">
+            <input type="text" id="user-name" placeholder="Name" maxlength="12">
+            <input type="text" id="user-msg" placeholder="Message..." maxlength="100">
+            <button id="send-btn">➤</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Cousin Crew Hub. All Rights Reserved.</p>
+        <p style="font-size: 0.6rem; margin-top: 5px; opacity: 0.3;">System Architect: Timon</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXArPj4WErtRkb2qfaDueaWZm9tdAbSGI",
+            authDomain: "street-humor-hub.firebaseapp.com",
+            projectId: "street-humor-hub",
+            storageBucket: "street-humor-hub.firebasestorage.app",
+            messagingSenderId: "1010209458338",
+            appId: "1:1010209458338:web:548911c5d0e36d1e3ceffb",
+            measurementId: "G-BSBR2JDXC5",
+            databaseURL: "https://street-humor-hub-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const chatRef = ref(db, "global_chat");
+
+        window.toggleChat = function() {
+            document.getElementById('chat-box').classList.toggle('active');
+        }
+
+        const sendBtn = document.getElementById("send-btn");
+        const uName = document.getElementById("user-name");
+        const uMsg = document.getElementById("user-msg");
+        const chatWindow = document.getElementById("chat-window");
+
+        sendBtn.onclick = () => {
+            const name = uName.value.trim() || "Guest";
+            const text = uMsg.value.trim();
+            if (text !== "") {
+                push(chatRef, { name, text, timestamp: serverTimestamp() });
+                uMsg.value = "";
+                uMsg.focus();
+            }
+        };
+
+        uMsg.addEventListener("keypress", (e) => { if(e.key === "Enter") sendBtn.onclick(); });
+
+        onChildAdded(chatRef, (snapshot) => {
+            const data = snapshot.val();
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `msg ${data.name === uName.value ? 'me' : 'others'}`;
+            msgDiv.innerHTML = `<b>${data.name}</b> ${data.text}`;
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
+    </script>
+</body>
+</html>
